@@ -1,5 +1,6 @@
 package com.ticketsales.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -30,9 +31,11 @@ public class Venue {
     @Column(nullable = false)
     private Integer totalCapacity;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
     private List<Seat> seats;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
     private List<Event> events;
 }

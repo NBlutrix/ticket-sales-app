@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface SeatRepository extends JpaRepository<Seat, Long> {
-    List<Seat> findByVenue(Long venueId);
+    List<Seat> findByVenueId(Long venueId);
     List<Seat> findByVenueAndStatus(Long venueId, Seat.SeatStatus status);
 }

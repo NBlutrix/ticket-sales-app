@@ -1,9 +1,10 @@
 package com.ticketsales.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "seats")
@@ -29,6 +30,7 @@ public class Seat {
     @Version
     private Long version;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
