@@ -1,5 +1,6 @@
 package com.ticketsales.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,10 +21,12 @@ public class Booking {
     @Column(nullable = false, unique = true)
     private String bookingReference;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "seat_id", nullable = false)
     private Seat seat;
