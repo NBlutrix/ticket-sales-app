@@ -9,6 +9,7 @@ import com.ticketsales.api.repository.EventRepository;
 import com.ticketsales.api.repository.SeatRepository;
 import com.ticketsales.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class BookingService {
     private final SeatRepository seatRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public Booking createBooking(BookingRequest request, String userEmail) {
@@ -48,7 +50,14 @@ public class BookingService {
         booking.setEvent(event);
         booking.setBookingReference(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
 
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+
+        messagingTemplate.convertAndSend(
+                "/topic/events/" + request.getEventId(),
+                new SeatStatusUpdate(seat.getId(), "BOOKED")
+        );
+
+        return saved;
     }
 
     public List<Booking> getUserBookings(String userEmail) {
@@ -56,4 +65,6 @@ public class BookingService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return bookingRepository.findByUserId(user.getId());
     }
+
+    public record SeatStatusUpdate(Long seatId, String status) {}
 }
