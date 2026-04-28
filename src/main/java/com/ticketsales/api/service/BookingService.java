@@ -25,6 +25,7 @@ public class BookingService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final SeatHoldService seatHoldService;
 
     @Transactional
     public Booking createBooking(BookingRequest request, String userEmail) {
@@ -38,11 +39,18 @@ public class BookingService {
             throw new RuntimeException("Seat is not available");
         }
 
+        String holdOwner = seatHoldService.getSeatHoldOwner(request.getSeatId());
+        if (holdOwner != null && !holdOwner.equals(userEmail)) {
+            throw new RuntimeException("Seat is currently held by another user");
+        }
+
         var event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new RuntimeException("Event not found"));
 
         seat.setStatus(Seat.SeatStatus.BOOKED);
         seatRepository.save(seat);
+
+        seatHoldService.releaseSeat(request.getSeatId());
 
         Booking booking = new Booking();
         booking.setUser(user);
