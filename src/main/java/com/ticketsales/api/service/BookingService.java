@@ -26,6 +26,7 @@ public class BookingService {
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final SeatHoldService seatHoldService;
+    private final EmailService emailService;
 
     @Transactional
     public Booking createBooking(BookingRequest request, String userEmail) {
@@ -59,6 +60,17 @@ public class BookingService {
         booking.setBookingReference(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
 
         Booking saved = bookingRepository.save(booking);
+        try {
+            emailService.sendBookingConfirmation(
+                    user.getEmail(),
+                    user.getFirstName(),
+                    booking.getBookingReference(),
+                    event.getName(),
+                    event.getEventDate().toString()
+            );
+        } catch (Exception e) {
+            System.err.println("Email sending failed: " + e.getMessage());
+        }
 
         messagingTemplate.convertAndSend(
                 "/topic/events/" + request.getEventId(),
