@@ -22,6 +22,9 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        if (venueRepository.count() > 0) {
+            return;
+        }
 
         Venue venue = new Venue();
         venue.setName("Stark Arena");
